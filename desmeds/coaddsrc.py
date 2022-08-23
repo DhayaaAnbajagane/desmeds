@@ -62,6 +62,8 @@ class CoaddSrc(Coadd):
             query = _QUERY_COADD_SRC_BYTILE_Y5 % self
         elif 'COSMOS' in self['campaign']:
             query = _QUERY_COADD_SRC_BYTILE_Y3A2_COSMOS % self
+        elif 'DR3_1_1' in self['campaign']:
+            query = _QUERY_COADD_SRC_BYTILE_DECADE % self
         else:
             query = _QUERY_COADD_SRC_BYTILE_Y3 % self
 
@@ -213,6 +215,8 @@ class CoaddSrc(Coadd):
             self['finalcut_campaign'] = 'COSMOS_COADD_TRUTH'
         elif self['campaign'] in ("Y6A2_COADD", "Y6A1_COADD"):
             self['finalcut_campaign'] = "Y6A1_COADD_INPUT"
+        elif self['campaign'] == "DR3_1_1":
+            self['finalcut_campaign'] = "DECADE_FINALCUT"
         else:
             raise ValueError("determine finalcut campaign "
                              "for '%s'" % self['campaign'])
@@ -258,6 +262,43 @@ where
     -- and z.source='FGCM'
     -- and z.version='v2.0'
     -- and rownum < 1000
+"""
+
+_QUERY_COADD_SRC_BYTILE_DECADE="""
+select
+    i.tilename,
+    i.expnum,
+    i.ccdnum,
+    fai.path,
+    j.filename as filename,
+    fai.compression,
+    j.band as band,
+    i.pfw_attempt_id,
+    z.mag_zero as magzp
+from
+    image i,
+    image j,
+    proctag tme,
+    proctag tse,
+    file_archive_info fai,
+    zeropoint z
+where
+    tme.tag='%(campaign)s'
+    and tme.pfw_attempt_id=i.pfw_attempt_id
+    and i.filetype='coadd_nwgint'
+    and i.band='%(band)s'
+    and i.tilename='%(tilename)s'
+    and i.expnum=j.expnum
+    and i.ccdnum=j.ccdnum
+    and j.filetype='red_immask'
+    and j.pfw_attempt_id=tse.pfw_attempt_id
+    and tse.tag='%(finalcut_campaign)s'
+    and fai.filename=j.filename
+    and z.imagename = j.filename
+    and z.source='expCalib'
+    and z.version='v1'
+order by
+    filename
 """
 
 _QUERY_COADD_SRC_BYTILE_Y5_old="""

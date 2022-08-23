@@ -34,6 +34,15 @@ class Coadd(dict):
         self['campaign'] = campaign.upper()
         self['piff_campaign'] = piff_campaign.upper()
         self.sources = sources
+        
+        if self['campaign'] == 'DR3_1_1':
+            self['prod_table']   = 'DECADE'
+            self['archive_name'] = 'decarchive'
+        else:
+            self['prod_table']   = 'prod'
+            self['archive_name'] = 'desar2home'
+            
+            
 
     def get_info(self):
         """
@@ -78,7 +87,11 @@ class Coadd(dict):
         else:
             self['userstring'] = ''
 
-        cmd=_DOWNLOAD_CMD % self
+        if self['campaign'] == 'DR3_1_1':
+            cmd=_DOWNLOAD_CMD_WGET % self
+            
+        else:
+            cmd=_DOWNLOAD_CMD % self
 
         try:
             subprocess.check_call(cmd,shell=True)
@@ -119,7 +132,7 @@ class Coadd(dict):
         #return _OBJECT_MAP_QUERY
         filename=os.path.basename(info['cat_path'])
         #filename=os.path.basename(info['filename'])
-        return _OBJECT_MAP_QUERY % filename
+        return _OBJECT_MAP_QUERY % (self['prod_table'], filename)
 
     def _get_objmap_dtype(self):
         return [
@@ -157,6 +170,8 @@ class Coadd(dict):
             'path':path,
             'band':band,
             'pfw_attempt_id':pai,
+            'archive_name':pai,
+            'prod_table':pai,
 
             # need to add this to the cache?  should always
             # be the same...
@@ -241,6 +256,7 @@ class Coadd(dict):
     def _write_download_flist(self, info):
 
         flist_file=self._get_tempfile()
+        
         flist=self._get_download_flist(info, no_prefix=True)
 
         print("writing file list to:",flist_file)
@@ -310,7 +326,11 @@ class Coadd(dict):
             conn=sources.get_conn()
         else:
             import easyaccess as ea
-            conn=ea.connect(section='desoper')
+            
+            if self['campaign'] == 'DR3_1_1':
+                conn=ea.connect(section='decade')
+            else:
+                conn=ea.connect(section='desoper')
 
         self._conn=conn
 
@@ -392,9 +412,9 @@ select
     m.pfw_attempt_id as pfw_attempt_id
 
 from
-    prod.proctag t,
-    prod.coadd m,
-    prod.file_archive_info fai
+    %(prod_table)s.proctag t,
+    %(prod_table)s.coadd m,
+    %(prod_table)s.file_archive_info fai
 where
     t.tag='%(campaign)s'
     and t.pfw_attempt_id=m.pfw_attempt_id
@@ -402,7 +422,7 @@ where
     and m.band='%(band)s'
     and m.filetype='coadd'
     and fai.filename=m.filename
-    and fai.archive_name='desar2home'\n"""
+    and fai.archive_name='%(archive_name)s'\n"""
 
 
 _DOWNLOAD_CMD = r"""
@@ -414,6 +434,19 @@ _DOWNLOAD_CMD = r"""
         %(source_dir)s/
 """
 
+_DOWNLOAD_CMD_WGET = r"""
+    wget \
+        --no-verbose \
+        --input-file=%(flist_file)s \
+        --base=${DECADEREMOTE_WGET} \
+        --directory-prefix=%(source_dir)s \
+        --force-directories \
+        --no-host-directories \
+        --cut-dirs=1 \
+        --auth-no-challenge \
+        --no-clobber
+"""
+
 _OBJECT_MAP_QUERY = """
 select
     object_number,
@@ -421,7 +454,7 @@ select
 from
     -- coadd_object
     -- prod.COADD_OBJECT_SAVE
-    prod.COADD_OBJECT
+    %s.COADD_OBJECT
 where
     filename='%s'
 order by
