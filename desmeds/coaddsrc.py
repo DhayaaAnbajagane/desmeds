@@ -281,7 +281,8 @@ from
     proctag tme,
     proctag tse,
     file_archive_info fai,
-    zeropoint z
+    madamow_decade.decade_refcat2_10_2 z,
+    delve_reader.delve_exclude_20220619 de
 where
     tme.tag='%(campaign)s'
     and tme.pfw_attempt_id=i.pfw_attempt_id
@@ -295,8 +296,9 @@ where
     and tse.tag='%(finalcut_campaign)s'
     and fai.filename=j.filename
     and z.imagename = j.filename
-    and z.source='expCalib'
-    and z.version='v1'
+    and z.source='Refcat2'
+    and z.version='DR3_v10.2'
+    and ((i.expnum not in de.expnum) or (i.ccdnum not in de.ccdnum))
 order by
     filename
 """
