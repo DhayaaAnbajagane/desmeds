@@ -265,7 +265,7 @@ where
 """
 
 _QUERY_COADD_SRC_BYTILE_DECADE="""
-select
+select distinct
     i.tilename,
     i.expnum,
     i.ccdnum,
@@ -298,7 +298,7 @@ where
     and z.imagename = j.filename
     and z.source='Refcat2'
     and z.version='DR3_v10.2'
-    and ((i.expnum not in de.expnum) or (i.ccdnum not in de.ccdnum))
+    and not (i.expnum=de.expnum and i.ccdnum=de.ccdnum)
 order by
     filename
 """
