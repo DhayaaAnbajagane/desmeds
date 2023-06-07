@@ -35,7 +35,7 @@ class Coadd(dict):
         self['piff_campaign'] = piff_campaign.upper()
         self.sources = sources
         
-        if self['campaign'] == 'DR3_1_1':
+        if self['campaign'] == 'DR3_1':
             self['prod_table']   = 'DECADE'
             self['archive_name'] = 'decarchive'
         else:
@@ -87,7 +87,7 @@ class Coadd(dict):
         else:
             self['userstring'] = ''
 
-        if self['campaign'] == 'DR3_1_1':
+        if self['campaign'] == 'DR3_1':
             cmd=_DOWNLOAD_CMD_WGET % self
             
         else:
@@ -152,7 +152,10 @@ class Coadd(dict):
         get info for the specified tilename and band
         """
 
-        query = _QUERY_COADD_TEMPLATE_BYTILE % self
+        if self["campaign"] == 'DR3_1':
+            query = _QUERY_COADD_TEMPLATE_DECADE_BYTILE % self
+        else:
+            query = _QUERY_COADD_TEMPLATE_BYTILE % self
 
         print(query)
         conn=self.get_conn()
@@ -327,7 +330,7 @@ class Coadd(dict):
         else:
             import easyaccess as ea
             
-            if self['campaign'] == 'DR3_1_1':
+            if self['campaign'] == 'DR3_1':
                 conn=ea.connect(section='decade')
             else:
                 conn=ea.connect(section='desoper')
@@ -417,6 +420,28 @@ from
     %(prod_table)s.file_archive_info fai
 where
     t.tag='%(campaign)s'
+    and t.pfw_attempt_id=m.pfw_attempt_id
+    and m.tilename='%(tilename)s'
+    and m.band='%(band)s'
+    and m.filetype='coadd'
+    and fai.filename=m.filename
+    and fai.archive_name='%(archive_name)s'\n"""
+
+_QUERY_COADD_TEMPLATE_DECADE_BYTILE="""
+select
+    m.tilename as tilename,
+    fai.path as path,
+    fai.filename as filename,
+    fai.compression as compression,
+    m.band as band,
+    m.pfw_attempt_id as pfw_attempt_id
+
+from
+    %(prod_table)s.proctag t,
+    %(prod_table)s.coadd m,
+    %(prod_table)s.file_archive_info fai
+where
+    (t.tag='DR3_1_1' or t.tag='DR3_1_2')
     and t.pfw_attempt_id=m.pfw_attempt_id
     and m.tilename='%(tilename)s'
     and m.band='%(band)s'

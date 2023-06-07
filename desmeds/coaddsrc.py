@@ -62,7 +62,7 @@ class CoaddSrc(Coadd):
             query = _QUERY_COADD_SRC_BYTILE_Y5 % self
         elif 'COSMOS' in self['campaign']:
             query = _QUERY_COADD_SRC_BYTILE_Y3A2_COSMOS % self
-        elif 'DR3_1_1' in self['campaign']:
+        elif 'DR3_1' in self['campaign']:
             query = _QUERY_COADD_SRC_BYTILE_DECADE % self
         else:
             query = _QUERY_COADD_SRC_BYTILE_Y3 % self
@@ -206,6 +206,7 @@ class CoaddSrc(Coadd):
         return '/'.join(ps)
 
     def _set_finalcut_campaign(self):
+        print("MY CAMPAIGN", self['campaign'])
         y3list=('Y3A1_COADD', 'Y3A2_COADD', )
         if self['campaign'] in y3list:
             self['finalcut_campaign']='Y3A1_FINALCUT'
@@ -215,7 +216,7 @@ class CoaddSrc(Coadd):
             self['finalcut_campaign'] = 'COSMOS_COADD_TRUTH'
         elif self['campaign'] in ("Y6A2_COADD", "Y6A1_COADD"):
             self['finalcut_campaign'] = "Y6A1_COADD_INPUT"
-        elif self['campaign'] == "DR3_1_1":
+        elif self['campaign'] == "DR3_1":
             self['finalcut_campaign'] = "DECADE_FINALCUT"
         else:
             raise ValueError("determine finalcut campaign "
@@ -281,10 +282,11 @@ from
     proctag tme,
     proctag tse,
     file_archive_info fai,
-    madamow_decade.decade_refcat2_10_2 z,
-    delve_reader.delve_exclude_20220619 de
+    (select ccdnum, expnum, mag_zero from madamow_decade.decade_refcat2_10_2 
+     union
+     select ccdnum, expnum, mag_zero from delve_reader.decade_refcat2_12_0) z 
 where
-    tme.tag='%(campaign)s'
+    (tme.tag='DR3_1_1' or tme.tag='DR3_1_2')
     and tme.pfw_attempt_id=i.pfw_attempt_id
     and i.filetype='coadd_nwgint'
     and i.band='%(band)s'
@@ -295,10 +297,8 @@ where
     and j.pfw_attempt_id=tse.pfw_attempt_id
     and tse.tag='%(finalcut_campaign)s'
     and fai.filename=j.filename
-    and z.imagename = j.filename
-    and z.source='Refcat2'
-    and z.version='DR3_v10.2'
-    and not (i.expnum=de.expnum and i.ccdnum=de.ccdnum)
+    and z.ccdnum = j.ccdnum
+    and z.expnum = j.expnum
 order by
     filename
 """
