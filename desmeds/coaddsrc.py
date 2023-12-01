@@ -282,9 +282,7 @@ from
     proctag tme,
     proctag tse,
     file_archive_info fai,
-    (select ccdnum, expnum, mag_zero from madamow_decade.decade_refcat2_10_2 
-     union
-     select ccdnum, expnum, mag_zero from delve_reader.decade_refcat2_12_0) z 
+    madamow_decade.decade_refcat2_13_0 z
 where
     (tme.tag='DR3_1_1' or tme.tag='DR3_1_2')
     and tme.pfw_attempt_id=i.pfw_attempt_id
