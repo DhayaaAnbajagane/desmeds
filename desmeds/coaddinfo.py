@@ -38,6 +38,11 @@ class Coadd(dict):
         if self['campaign'] == 'DR3_1':
             self['prod_table']   = 'DECADE'
             self['archive_name'] = 'decarchive'
+            
+        elif self['campaign'] in ['NGC55_COADD_V4' , 'LEO_CAND', 'NGC300_COADD' , 'IC5152_COADD']:
+            self['prod_table']   = 'DECADE'
+            self['archive_name'] = 'decarchive'
+        
         else:
             self['prod_table']   = 'prod'
             self['archive_name'] = 'desar2home'
@@ -88,6 +93,9 @@ class Coadd(dict):
             self['userstring'] = ''
 
         if self['campaign'] == 'DR3_1':
+            cmd=_DOWNLOAD_CMD_WGET % self
+        
+        elif self['campaign'] in ['NGC55_COADD_V4' , 'LEO_CAND', 'NGC300_COADD' , 'IC5152_COADD']:
             cmd=_DOWNLOAD_CMD_WGET % self
             
         else:
@@ -154,6 +162,8 @@ class Coadd(dict):
 
         if self["campaign"] == 'DR3_1':
             query = _QUERY_COADD_TEMPLATE_DECADE_BYTILE % self
+        elif self['campaign'] in ['NGC55_COADD_V4' , 'LEO_CAND', 'NGC300_COADD' , 'IC5152_COADD']:
+            query = _QUERY_COADD_TEMPLATE_DELVE_DEEP_BYTILE % self
         else:
             query = _QUERY_COADD_TEMPLATE_BYTILE % self
 
@@ -332,6 +342,8 @@ class Coadd(dict):
             
             if self['campaign'] == 'DR3_1':
                 conn=ea.connect(section='decade')
+            elif self['campaign'] in ['NGC55_COADD_V4' , 'LEO_CAND', 'NGC300_COADD' , 'IC5152_COADD']:
+                conn=ea.connect(section='decade')
             else:
                 conn=ea.connect(section='desoper')
 
@@ -442,6 +454,29 @@ from
     %(prod_table)s.file_archive_info fai
 where
     (t.tag='DR3_1_1' or t.tag='DR3_1_2')
+    and t.pfw_attempt_id=m.pfw_attempt_id
+    and m.tilename='%(tilename)s'
+    and m.band='%(band)s'
+    and m.filetype='coadd'
+    and fai.filename=m.filename
+    and fai.archive_name='%(archive_name)s'\n"""
+
+
+_QUERY_COADD_TEMPLATE_DELVE_DEEP_BYTILE="""
+select
+    m.tilename as tilename,
+    fai.path as path,
+    fai.filename as filename,
+    fai.compression as compression,
+    m.band as band,
+    m.pfw_attempt_id as pfw_attempt_id
+
+from
+    %(prod_table)s.proctag t,
+    %(prod_table)s.coadd m,
+    %(prod_table)s.file_archive_info fai
+where
+    t.tag='%(campaign)s'
     and t.pfw_attempt_id=m.pfw_attempt_id
     and m.tilename='%(tilename)s'
     and m.band='%(band)s'

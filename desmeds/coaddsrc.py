@@ -64,6 +64,8 @@ class CoaddSrc(Coadd):
             query = _QUERY_COADD_SRC_BYTILE_Y3A2_COSMOS % self
         elif 'DR3_1' in self['campaign']:
             query = _QUERY_COADD_SRC_BYTILE_DECADE % self
+        elif self['campaign'] in ['NGC55_COADD_V4' , 'LEO_CAND', 'NGC300_COADD' , 'IC5152_COADD']:
+            query = _QUERY_COADD_SRC_BYTILE_DELVE_DEEP % self
         else:
             query = _QUERY_COADD_SRC_BYTILE_Y3 % self
 
@@ -210,14 +212,35 @@ class CoaddSrc(Coadd):
         y3list=('Y3A1_COADD', 'Y3A2_COADD', )
         if self['campaign'] in y3list:
             self['finalcut_campaign']='Y3A1_FINALCUT'
+        
         elif self['campaign']=='Y5A1_COADD':
             self['finalcut_campaign']='Y5A1_FINALCUT'
+        
         elif self['campaign']=='Y3A2_COSMOS_COADD_TRUTH_V4':
             self['finalcut_campaign'] = 'COSMOS_COADD_TRUTH'
+        
         elif self['campaign'] in ("Y6A2_COADD", "Y6A1_COADD"):
             self['finalcut_campaign'] = "Y6A1_COADD_INPUT"
+        
         elif self['campaign'] == "DR3_1":
             self['finalcut_campaign'] = "DECADE_FINALCUT"
+            
+        elif self['campaign'] == "NGC55_COADD_V4":
+            self['finalcut_campaign'] = "NGC55_finalcut"
+            self['zp_table'] = "DECADE_ZPS_NGC55_20230209".lower()
+            
+        elif self['campaign'] == "LEO_CAND":
+            self['finalcut_campaign'] = "DECADE_FINALCUT"
+            self['zp_table'] = "LEO_REFCAT2_ZPS".lower()
+            
+        elif self['campaign'] == "NGC300_COADD":
+            self['finalcut_campaign'] = "DECADE_FINALCUT"
+            self['zp_table'] = "NGC300_ZPS_20230906".lower()
+            
+        elif self['campaign'] == "IC5152_COADD":
+            self['finalcut_campaign'] = "DECADE_FINALCUT"
+            self['zp_table'] = "IC5152_ZPS_20230906".lower()
+        
         else:
             raise ValueError("determine finalcut campaign "
                              "for '%s'" % self['campaign'])
@@ -285,6 +308,42 @@ from
     madamow_decade.decade_refcat2_13_0 z
 where
     (tme.tag='DR3_1_1' or tme.tag='DR3_1_2')
+    and tme.pfw_attempt_id=i.pfw_attempt_id
+    and i.filetype='coadd_nwgint'
+    and i.band='%(band)s'
+    and i.tilename='%(tilename)s'
+    and i.expnum=j.expnum
+    and i.ccdnum=j.ccdnum
+    and j.filetype='red_immask'
+    and j.pfw_attempt_id=tse.pfw_attempt_id
+    and tse.tag='%(finalcut_campaign)s'
+    and fai.filename=j.filename
+    and z.ccdnum = j.ccdnum
+    and z.expnum = j.expnum
+order by
+    filename
+"""
+
+_QUERY_COADD_SRC_BYTILE_DELVE_DEEP="""
+select distinct
+    i.tilename,
+    i.expnum,
+    i.ccdnum,
+    fai.path,
+    j.filename as filename,
+    fai.compression,
+    j.band as band,
+    i.pfw_attempt_id,
+    z.mag_zero as magzp
+from
+    image i,
+    image j,
+    proctag tme,
+    proctag tse,
+    file_archive_info fai,
+    madamow_decade.%(zp_table)s z
+where
+    tme.tag = '%(campaign)s'
     and tme.pfw_attempt_id=i.pfw_attempt_id
     and i.filetype='coadd_nwgint'
     and i.band='%(band)s'
