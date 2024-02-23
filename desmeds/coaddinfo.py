@@ -250,6 +250,13 @@ class Coadd(dict):
                 fname = fname.replace(source_dir, '')
 
             flist.append(fname)
+            
+            
+        #Manually append the detection band psf everytime
+        det_psf = info['psf_path'].replace('_%s_' % self['band'], '_det_')
+        if no_prefix: det_psf = det_psf.replace(source_dir, '')
+        flist.append(det_psf)
+        
 
         if 'src_info' in info:
             for sinfo in info['src_info']:
