@@ -64,7 +64,7 @@ class CoaddSrc(Coadd):
             query = _QUERY_COADD_SRC_BYTILE_Y3A2_COSMOS % self
         elif 'DR3_1' in self['campaign']:
             query = _QUERY_COADD_SRC_BYTILE_DECADE % self
-        elif self['campaign'] in ['NGC55_COADD_V4' , 'LEO_CAND', 'NGC300_COADD' , 'IC5152_COADD', 'NGC3109']:
+        elif self['campaign'] in ['NGC55_COADD_V4' , 'LEO_CAND', 'NGC300_COADD' , 'IC5152_COADD', 'NGC3109_COADD']:
             query = _QUERY_COADD_SRC_BYTILE_DELVE_DEEP % self
         else:
             query = _QUERY_COADD_SRC_BYTILE_Y3 % self
@@ -241,7 +241,7 @@ class CoaddSrc(Coadd):
             self['finalcut_campaign'] = "DECADE_FINALCUT"
             self['zp_table'] = "IC5152_ZPS_20230906".lower()
             
-        elif self['campaign'] == "NGC3109":
+        elif self['campaign'] == "NGC3109_COADD":
             self['finalcut_campaign'] = "DECADE_FINALCUT"
             self['zp_table'] = "DECADE_REFCAT2_13_1".lower()
         
@@ -309,7 +309,7 @@ from
     proctag tme,
     proctag tse,
     file_archive_info fai,
-    madamow_decade.decade_refcat2_13_0 z
+    madamow_decade.decade_refcat2_13_1 z
 where
     (tme.tag='DR3_1_1' or tme.tag='DR3_1_2')
     and tme.pfw_attempt_id=i.pfw_attempt_id
