@@ -64,7 +64,7 @@ class CoaddSrc(Coadd):
             query = _QUERY_COADD_SRC_BYTILE_Y3A2_COSMOS % self
         elif 'DR3_1' in self['campaign']:
             query = _QUERY_COADD_SRC_BYTILE_DECADE % self
-        elif self['campaign'] in ['NGC55_COADD_V4' , 'LEO_CAND', 'NGC300_COADD' , 'IC5152_COADD']:
+        elif self['campaign'] in ['NGC55_COADD_V4' , 'LEO_CAND', 'NGC300_COADD' , 'IC5152_COADD', 'NGC3109']:
             query = _QUERY_COADD_SRC_BYTILE_DELVE_DEEP % self
         else:
             query = _QUERY_COADD_SRC_BYTILE_Y3 % self
@@ -240,6 +240,10 @@ class CoaddSrc(Coadd):
         elif self['campaign'] == "IC5152_COADD":
             self['finalcut_campaign'] = "DECADE_FINALCUT"
             self['zp_table'] = "IC5152_ZPS_20230906".lower()
+            
+        elif self['campaign'] == "NGC3109":
+            self['finalcut_campaign'] = "DECADE_FINALCUT"
+            self['zp_table'] = "DECADE_REFCAT2_13_1".lower()
         
         else:
             raise ValueError("determine finalcut campaign "

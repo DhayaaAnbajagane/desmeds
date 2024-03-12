@@ -39,7 +39,7 @@ class Coadd(dict):
             self['prod_table']   = 'DECADE'
             self['archive_name'] = 'decarchive'
             
-        elif self['campaign'] in ['NGC55_COADD_V4' , 'LEO_CAND', 'NGC300_COADD' , 'IC5152_COADD']:
+        elif self['campaign'] in ['NGC55_COADD_V4' , 'LEO_CAND', 'NGC300_COADD' , 'IC5152_COADD', 'NGC3109']:
             self['prod_table']   = 'DECADE'
             self['archive_name'] = 'decarchive'
         
@@ -95,7 +95,7 @@ class Coadd(dict):
         if self['campaign'] == 'DR3_1':
             cmd=_DOWNLOAD_CMD_WGET % self
         
-        elif self['campaign'] in ['NGC55_COADD_V4' , 'LEO_CAND', 'NGC300_COADD' , 'IC5152_COADD']:
+        elif self['campaign'] in ['NGC55_COADD_V4' , 'LEO_CAND', 'NGC300_COADD' , 'IC5152_COADD', 'NGC3109']:
             cmd=_DOWNLOAD_CMD_WGET % self
             
         else:
@@ -162,7 +162,7 @@ class Coadd(dict):
 
         if self["campaign"] == 'DR3_1':
             query = _QUERY_COADD_TEMPLATE_DECADE_BYTILE % self
-        elif self['campaign'] in ['NGC55_COADD_V4' , 'LEO_CAND', 'NGC300_COADD' , 'IC5152_COADD']:
+        elif self['campaign'] in ['NGC55_COADD_V4' , 'LEO_CAND', 'NGC300_COADD' , 'IC5152_COADD', 'NGC3109']:
             query = _QUERY_COADD_TEMPLATE_DELVE_DEEP_BYTILE % self
         else:
             query = _QUERY_COADD_TEMPLATE_BYTILE % self
@@ -349,7 +349,7 @@ class Coadd(dict):
             
             if self['campaign'] == 'DR3_1':
                 conn=ea.connect(section='decade')
-            elif self['campaign'] in ['NGC55_COADD_V4' , 'LEO_CAND', 'NGC300_COADD' , 'IC5152_COADD']:
+            elif self['campaign'] in ['NGC55_COADD_V4' , 'LEO_CAND', 'NGC300_COADD' , 'IC5152_COADD', 'NGC3109']:
                 conn=ea.connect(section='decade')
             else:
                 conn=ea.connect(section='desoper')
