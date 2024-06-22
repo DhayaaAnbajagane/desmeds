@@ -224,6 +224,11 @@ class CoaddSrc(Coadd):
         
         elif self['campaign'] == "DR3_1":
             self['finalcut_campaign'] = "DECADE_FINALCUT"
+            self['zp_table'] = "decade_refcat2_13_1"
+            
+        elif self['campaign'] == "DR3_2":
+            self['finalcut_campaign'] = "DECADE_FINALCUT"
+            self['zp_table'] = "decade_refcat2_14_0"
             
         elif self['campaign'] == "NGC55_COADD_V4":
             self['finalcut_campaign'] = "NGC55_finalcut"
@@ -309,9 +314,9 @@ from
     proctag tme,
     proctag tse,
     file_archive_info fai,
-    madamow_decade.decade_refcat2_13_1 z
+    madamow_decade.%(zp_table)s z
 where
-    (tme.tag='DR3_1_1' or tme.tag='DR3_1_2')
+    tme.tag = '%(campaign)s'
     and tme.pfw_attempt_id=i.pfw_attempt_id
     and i.filetype='coadd_nwgint'
     and i.band='%(band)s'
