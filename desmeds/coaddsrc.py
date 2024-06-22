@@ -62,7 +62,7 @@ class CoaddSrc(Coadd):
             query = _QUERY_COADD_SRC_BYTILE_Y5 % self
         elif 'COSMOS' in self['campaign']:
             query = _QUERY_COADD_SRC_BYTILE_Y3A2_COSMOS % self
-        elif 'DR3_1' in self['campaign']:
+        elif ('DR3_1' in self['campaign']) or ('DR3_2' in self['campaign']):
             query = _QUERY_COADD_SRC_BYTILE_DECADE % self
         elif self['campaign'] in ['NGC55_COADD_V4' , 'LEO_CAND', 'NGC300_COADD' , 'IC5152_COADD', 'NGC3109_COADD']:
             query = _QUERY_COADD_SRC_BYTILE_DELVE_DEEP % self
@@ -228,7 +228,7 @@ class CoaddSrc(Coadd):
             
         elif self['campaign'] == "DR3_2":
             self['finalcut_campaign'] = "DECADE_FINALCUT"
-            self['zp_table'] = "decade_refcat2_14_0"
+            self['zp_table'] = "des_decade_refcat2_14_0"
             
         elif self['campaign'] == "NGC55_COADD_V4":
             self['finalcut_campaign'] = "NGC55_finalcut"
