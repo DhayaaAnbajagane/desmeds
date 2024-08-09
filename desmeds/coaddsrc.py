@@ -64,6 +64,8 @@ class CoaddSrc(Coadd):
             query = _QUERY_COADD_SRC_BYTILE_Y3A2_COSMOS % self
         elif ('DR3_1' in self['campaign']) or ('DR3_2' in self['campaign']):
             query = _QUERY_COADD_SRC_BYTILE_DECADE % self
+        elif ('DR3' in self['campaign']):
+            query = _QUERY_COADD_SRC_BYTILE_DECADE_DR3 % self
         elif self['campaign'] in ['NGC55_COADD_V4' , 'LEO_CAND', 'NGC300_COADD' , 'IC5152_COADD', 'NGC3109_COADD']:
             query = _QUERY_COADD_SRC_BYTILE_DELVE_DEEP % self
         else:
@@ -229,6 +231,10 @@ class CoaddSrc(Coadd):
         elif self['campaign'] == "DR3_2":
             self['finalcut_campaign'] = "DECADE_FINALCUT"
             self['zp_table'] = "des_decade_refcat2_14_0"
+
+        elif self['campaign'] == "DR3":
+            self['finalcut_campaign'] = "DECADE_FINALCUT"
+            self['zp_table'] = "NAN NAN NAN" #Should not be used since we anyway need to combine tags
             
         elif self['campaign'] == "NGC55_COADD_V4":
             self['finalcut_campaign'] = "NGC55_finalcut"
@@ -332,6 +338,44 @@ where
 order by
     filename
 """
+
+_QUERY_COADD_SRC_BYTILE_DECADE_DR3="""
+select distinct
+    i.tilename,
+    i.expnum,
+    i.ccdnum,
+    fai.path,
+    j.filename as filename,
+    fai.compression,
+    j.band as band,
+    i.pfw_attempt_id,
+    z.mag_zero as magzp
+from
+    image i,
+    image j,
+    proctag tme,
+    proctag tse,
+    file_archive_info fai,
+    (select ccdnum, expnum, mag_zero from madamow_decade.decade_refcat2_13_1 union
+     select ccdnum, expnum, mag_zero from madamow_decade.des_decade_refcat2_14_0) z
+where
+    tme.tag in ('DR3_1', 'DR3_2')
+    and tme.pfw_attempt_id=i.pfw_attempt_id
+    and i.filetype='coadd_nwgint'
+    and i.band='%(band)s'
+    and i.tilename='%(tilename)s'
+    and i.expnum=j.expnum
+    and i.ccdnum=j.ccdnum
+    and j.filetype='red_immask'
+    and j.pfw_attempt_id=tse.pfw_attempt_id
+    and tse.tag='%(finalcut_campaign)s'
+    and fai.filename=j.filename
+    and z.ccdnum = j.ccdnum
+    and z.expnum = j.expnum
+order by
+    filename
+"""
+
 
 _QUERY_COADD_SRC_BYTILE_DELVE_DEEP="""
 select distinct
