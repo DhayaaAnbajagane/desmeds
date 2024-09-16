@@ -60,14 +60,22 @@ class CoaddSrc(Coadd):
 
         if 'Y5' in self['campaign'] or 'Y6' in self['campaign']:
             query = _QUERY_COADD_SRC_BYTILE_Y5 % self
+
         elif 'COSMOS' in self['campaign']:
             query = _QUERY_COADD_SRC_BYTILE_Y3A2_COSMOS % self
+
         elif ('DR3_1' in self['campaign']) or ('DR3_2' in self['campaign']):
             query = _QUERY_COADD_SRC_BYTILE_DECADE % self
+
         elif ('DR3' in self['campaign']):
             query = _QUERY_COADD_SRC_BYTILE_DECADE_DR3 % self
+
         elif self['campaign'] in ['NGC55_COADD_V4' , 'LEO_CAND', 'NGC300_COADD' , 'IC5152_COADD', 'NGC3109_COADD']:
             query = _QUERY_COADD_SRC_BYTILE_DELVE_DEEP % self
+
+        elif self['campaign'] in ['SEXB_COADD']:
+            query = _QUERY_COADD_SRC_BYTILE_DELVE_DEEP_SEXTANSB % self
+
         else:
             query = _QUERY_COADD_SRC_BYTILE_Y3 % self
 
@@ -235,6 +243,10 @@ class CoaddSrc(Coadd):
         elif self['campaign'] == "DR3":
             self['finalcut_campaign'] = "DECADE_FINALCUT"
             self['zp_table'] = "NAN NAN NAN" #Should not be used since we anyway need to combine tags
+
+        elif self['campaign'] == "SEXB_COADD":
+            self['finalcut_campaign'] = "DECADE_FINALCUT"
+            self['zp_table'] = "NAN NAN NAN" #Should not be used since we get ZPs from image table here
             
         elif self['campaign'] == "NGC55_COADD_V4":
             self['finalcut_campaign'] = "NGC55_finalcut"
@@ -409,6 +421,39 @@ where
     and fai.filename=j.filename
     and z.ccdnum = j.ccdnum
     and z.expnum = j.expnum
+order by
+    filename
+"""
+
+_QUERY_COADD_SRC_BYTILE_DELVE_DEEP_SEXTANSB="""
+select distinct
+    i.tilename,
+    i.expnum,
+    i.ccdnum,
+    fai.path,
+    j.filename as filename,
+    fai.compression,
+    j.band as band,
+    i.pfw_attempt_id,
+    i.mag_zero as magzp
+from
+    image i,
+    image j,
+    proctag tme,
+    proctag tse,
+    file_archive_info fai,
+where
+    tme.tag = '%(campaign)s'
+    and tme.pfw_attempt_id=i.pfw_attempt_id
+    and i.filetype='coadd_nwgint'
+    and i.band='%(band)s'
+    and i.tilename='%(tilename)s'
+    and i.expnum=j.expnum
+    and i.ccdnum=j.ccdnum
+    and j.filetype='red_immask'
+    and j.pfw_attempt_id=tse.pfw_attempt_id
+    and tse.tag='%(finalcut_campaign)s'
+    and fai.filename=j.filename
 order by
     filename
 """

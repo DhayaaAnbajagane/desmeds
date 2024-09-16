@@ -39,7 +39,7 @@ class Coadd(dict):
             self['prod_table']   = 'DECADE'
             self['archive_name'] = 'decarchive'
             
-        elif self['campaign'] in ['NGC55_COADD_V4' , 'LEO_CAND', 'NGC300_COADD' , 'IC5152_COADD', 'NGC3109_COADD']:
+        elif self['campaign'] in ['NGC55_COADD_V4' , 'LEO_CAND', 'NGC300_COADD' , 'IC5152_COADD', 'NGC3109_COADD', 'SEXB_COADD']:
             self['prod_table']   = 'DECADE'
             self['archive_name'] = 'decarchive'
         
@@ -95,7 +95,7 @@ class Coadd(dict):
         if self['campaign'] in ['DR3_1', 'DR3_2', 'DR3']:
             cmd=_DOWNLOAD_CMD_WGET % self
         
-        elif self['campaign'] in ['NGC55_COADD_V4' , 'LEO_CAND', 'NGC300_COADD' , 'IC5152_COADD', 'NGC3109_COADD']:
+        elif self['campaign'] in ['NGC55_COADD_V4' , 'LEO_CAND', 'NGC300_COADD' , 'IC5152_COADD', 'NGC3109_COADD', 'SEXB_COADD']:
             cmd=_DOWNLOAD_CMD_WGET % self
             
         else:
@@ -162,8 +162,10 @@ class Coadd(dict):
 
         if self["campaign"] in ['DR3_1', 'DR3_2', 'DR3']:
             query = _QUERY_COADD_TEMPLATE_DECADE_BYTILE % self
-        elif self['campaign'] in ['NGC55_COADD_V4' , 'LEO_CAND', 'NGC300_COADD' , 'IC5152_COADD', 'NGC3109_COADD']:
+
+        elif self['campaign'] in ['NGC55_COADD_V4' , 'LEO_CAND', 'NGC300_COADD' , 'IC5152_COADD', 'NGC3109_COADD', 'SEXB_COADD']:
             query = _QUERY_COADD_TEMPLATE_DELVE_DEEP_BYTILE % self
+
         else:
             query = _QUERY_COADD_TEMPLATE_BYTILE % self
 
@@ -349,8 +351,10 @@ class Coadd(dict):
             
             if self['campaign'] in ['DR3_1', 'DR3_2', 'DR3']:
                 conn=ea.connect(section='decade')
-            elif self['campaign'] in ['NGC55_COADD_V4' , 'LEO_CAND', 'NGC300_COADD' , 'IC5152_COADD', 'NGC3109_COADD']:
+
+            elif self['campaign'] in ['NGC55_COADD_V4' , 'LEO_CAND', 'NGC300_COADD' , 'IC5152_COADD', 'NGC3109_COADD', 'SEXB_COADD']:
                 conn=ea.connect(section='decade')
+
             else:
                 conn=ea.connect(section='desoper')
 
