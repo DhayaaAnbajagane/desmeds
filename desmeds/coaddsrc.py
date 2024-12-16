@@ -441,7 +441,7 @@ from
     image j,
     proctag tme,
     proctag tse,
-    file_archive_info fai,
+    file_archive_info fai
 where
     tme.tag = '%(campaign)s'
     and tme.pfw_attempt_id=i.pfw_attempt_id
