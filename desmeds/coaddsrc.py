@@ -435,13 +435,14 @@ select distinct
     fai.compression,
     j.band as band,
     i.pfw_attempt_id,
-    i.mag_zero as magzp
+    z.mag_zero as magzp
 from
     image i,
     image j,
     proctag tme,
     proctag tse,
-    file_archive_info fai
+    file_archive_info fai,
+    zeropoint z
 where
     tme.tag = '%(campaign)s'
     and tme.pfw_attempt_id=i.pfw_attempt_id
@@ -454,6 +455,9 @@ where
     and j.pfw_attempt_id=tse.pfw_attempt_id
     and tse.tag='%(finalcut_campaign)s'
     and fai.filename=j.filename
+    and z.imagename=j.filename
+    and z.source='expCalib'
+    and z.version='refcat2'
 order by
     filename
 """
