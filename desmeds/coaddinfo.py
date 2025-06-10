@@ -286,7 +286,7 @@ class Coadd(dict):
             for fname in flist:
                 fobj.write(fname)
                 fobj.write('\n')
-
+        
         return flist_file
 
     def _get_tempfile(self):
@@ -297,7 +297,9 @@ class Coadd(dict):
 
 
     def _get_download_types(self):
-        return ['image','cat','seg','psf']
+        #return ['image','cat','seg','psf']
+
+        return ['image','cat','psf']
 
     def _get_source_download_types(self):
         return ['image','bkg','seg','psf','head','piff']
